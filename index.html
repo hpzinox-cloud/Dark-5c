@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark 5C</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--g:#00ff41;--gd:#00aa2a;--gdark:#003b0f;--bg:#050d05;--card:rgba(0,20,5,0.9);--border:rgba(0,255,65,0.22);--red:#ff3333;--gold:#ffd700;--blue:#00cfff}
+  body{font-family:'Share Tech Mono',monospace;background:var(--bg);color:var(--g);min-height:100vh;overflow-x:hidden;cursor:crosshair}
+  .hero-bg{position:fixed;top:0;left:0;width:100%;height:100%;background-image:url('1775724285910_image.png');background-size:cover;background-position:center top;filter:brightness(0.13) saturate(0.3) hue-rotate(100deg);z-index:0}
+  .scanlines{position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);z-index:1;pointer-events:none}
+  .wrap{position:relative;z-index:2;max-width:960px;margin:0 auto;padding:0 14px 60px}
+
+  /* LOGIN */
+  .modal-overlay{display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;align-items:center;justify-content:center}
+  .modal-overlay.hidden{display:none}
+  .login-box{background:#060e06;border:1px solid var(--g);border-radius:14px;padding:38px 32px;text-align:center;width:340px;box-shadow:0 0 50px rgba(0,255,65,0.2)}
+  .login-box h2{font-family:'Orbitron',monospace;font-size:20px;color:var(--g);margin-bottom:4px}
+  .login-box p{font-size:11px;color:var(--gd);margin-bottom:22px;letter-spacing:3px}
+  .lin{width:100%;background:rgba(0,255,65,0.05);border:1px solid var(--border);border-radius:6px;padding:11px 14px;color:var(--g);font-family:'Share Tech Mono',monospace;font-size:14px;margin-bottom:10px;outline:none}
+  .lin:focus{border-color:var(--g)}
+  .lerr{color:var(--red);font-size:11px;margin-bottom:8px;min-height:16px}
+  .btn-login{width:100%;background:var(--g);color:#000;border:none;border-radius:6px;padding:12px;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;margin-bottom:8px}
+  .btn-login:hover{background:#00cc33}
+  .btn-pseudo{width:100%;background:transparent;color:var(--gd);border:1px solid var(--border);border-radius:6px;padding:9px;font-family:'Share Tech Mono',monospace;font-size:12px;cursor:pointer}
+  .btn-pseudo:hover{border-color:var(--g);color:var(--g)}
+  .sep{color:var(--gdark);font-size:11px;margin:10px 0}
+
+  /* HEADER */
+  header{text-align:center;padding:28px 16px 22px;border-bottom:1px solid var(--border);margin-bottom:20px}
+  .logo-img{width:100%;max-width:660px;border-radius:10px;border:1px solid var(--border);margin-bottom:14px;filter:brightness(0.6) saturate(0.4) hue-rotate(100deg);box-shadow:0 0 40px rgba(0,255,65,0.1)}
+  h1{font-family:'Orbitron',monospace;font-size:clamp(30px,9vw,66px);font-weight:900;color:var(--g);text-shadow:0 0 20px var(--g),0 0 60px rgba(0,255,65,0.3);letter-spacing:6px;animation:flicker 5s infinite}
+  @keyframes flicker{0%,94%,100%{opacity:1}95%{opacity:.6}96%{opacity:1}97%{opacity:.3}98%{opacity:1}}
+  .tagline{font-size:11px;color:var(--gd);letter-spacing:4px;margin-top:6px}
+
+  /* TOPBAR */
+  .topbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:18px}
+  .ub{display:flex;align-items:center;gap:10px}
+  .avatar{width:36px;height:36px;border-radius:50%;background:rgba(0,255,65,0.1);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .uname{font-family:'Orbitron',monospace;font-size:13px;color:var(--g)}
+  .ugrade{font-size:10px;letter-spacing:2px}
+  .grade-admin{color:var(--gold)}
+  .grade-membre{color:var(--blue)}
+  .grade-visit{color:var(--gd)}
+  .tbr{font-size:11px;color:var(--gd);text-align:right}
+  #ttime{color:var(--g);font-size:13px}
+
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px;backdrop-filter:blur(4px)}
+  .stitle{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:var(--gd);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+  .stitle-txt::before{content:'> ';color:var(--g)}
+
+  /* STATS */
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .stat{flex:1;min-width:90px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+  .sv{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--g)}
+  .sl{font-size:9px;color:var(--gd);letter-spacing:2px;margin-top:3px}
+
+  /* ANNONCES */
+  .annonce{background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.18);border-radius:8px;padding:14px;margin-bottom:10px;position:relative}
+  .ann-author{font-size:10px;color:var(--gold);margin-bottom:5px;letter-spacing:1px}
+  .ann-text{font-size:13px;color:var(--g);line-height:1.7;white-space:pre-wrap}
+  .ann-date{font-size:9px;color:var(--gdark);margin-top:6px}
+  .ann-del{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--red);font-size:12px;cursor:pointer;display:none}
+  body.is-admin .ann-del{display:block}
+
+  /* TEXT ZONES */
+  .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:580px){.tgrid,.fgrid{grid-template-columns:1fr !important}}
+  .tz{background:rgba(0,15,4,0.92);border:1px solid var(--border);border-radius:10px;padding:15px}
+  .tz-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+  .tz-lbl{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:var(--gold)}
+  .tz-body{font-size:13px;color:var(--g);line-height:1.7;min-height:50px;white-space:pre-wrap;word-break:break-word}
+  .tz-body.empty{color:var(--gdark)}
+  .tz-form{display:none;margin-top:10px}
+  .tz-form.open{display:block}
+
+  /* FILE SECTIONS */
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .fc{background:rgba(0,15,4,0.92);border:1px solid var(--border);border-radius:10px;padding:15px}
+  .fc-hd{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+  /* UPLOAD */
+  .drop{border:2px dashed var(--border);border-radius:8px;padding:18px 10px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+  .drop:hover{border-color:var(--g);background:rgba(0,255,65,0.03)}
+  .drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .drop-txt{font-size:11px;color:var(--gd);margin-top:5px}
+  .drop-txt span{color:var(--g)}
+  .drop.locked{pointer-events:none;opacity:0.4}
+
+  /* LINK UPLOAD (admin) */
+  .link-form{margin-top:10px;display:none}
+  .link-form.open{display:flex;gap:6px}
+  .link-input{flex:1;background:rgba(0,255,65,0.04);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--g);font-family:'Share Tech Mono',monospace;font-size:12px;outline:none}
+  .link-input:focus{border-color:var(--g)}
+
+  /* FILES LIST */
+  .flist{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .fitem{display:flex;align-items:center;gap:8px;background:rgba(0,255,65,0.04);border:1px solid var(--border);border-radius:6px;padding:8px 10px;position:relative}
+  .fitem-icon{font-size:18px;flex-shrink:0}
+  .fitem-info{flex:1;min-width:0}
+  .fitem-name{font-size:12px;color:var(--g);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fitem-meta{font-size:10px;color:var(--gd);margin-top:2px}
+  .fitem-dl{font-size:10px;color:var(--g);text-decoration:none;border:1px solid var(--border);border-radius:4px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
+  .fitem-dl:hover{background:rgba(0,255,65,0.1)}
+  .fitem-del{background:none;border:none;color:var(--red);font-size:11px;cursor:pointer;flex-shrink:0;display:none}
+  body.is-admin .fitem-del{display:block}
+  .no-files{color:var(--gdark);font-size:11px;text-align:center;padding:10px}
+
+  /* INPUTS */
+  .big-in{width:100%;background:rgba(0,255,65,0.04);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--g);font-family:'Share Tech Mono',monospace;font-size:13px;resize:vertical;min-height:70px;outline:none;margin-bottom:8px}
+  .big-in:focus{border-color:var(--g)}
+  .sm-in{width:100%;background:rgba(0,255,65,0.04);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--g);font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;margin-bottom:6px}
+  .sm-in:focus{border-color:var(--g)}
+
+  /* BUTTONS */
+  .bs{font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--g);cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:1px}
+  .bs:hover{background:rgba(0,255,65,0.08)}
+  .bs.save{border-color:var(--g);background:rgba(0,255,65,0.1)}
+  .bs.del{color:var(--red);border-color:rgba(255,51,51,0.3)}
+  .bs.del:hover{background:rgba(255,51,51,0.08)}
+  .btn-gold{background:var(--gold);color:#000;border:none;border-radius:6px;padding:7px 18px;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;cursor:pointer}
+  .btn-gold:hover{background:#ffe033}
+
+  /* LOADING */
+  .loading{text-align:center;padding:20px;color:var(--gd);font-size:12px;letter-spacing:2px}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+  .blink{animation:blink 1s infinite}
+
+  /* ADMIN ONLY */
+  .adm{display:none}
+  body.is-admin .adm{display:inline-flex}
+  .adm-block{display:none}
+  body.is-admin .adm-block{display:block}
+  .ann-form{display:none}
+  body.is-admin .ann-form-wrap .ann-form{display:none}
+
+  footer{text-align:center;padding:24px 0 10px;font-size:10px;color:var(--gdark);letter-spacing:2px;border-top:1px solid var(--border);margin-top:20px}
+  ::-webkit-scrollbar{width:5px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--gdark);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="hero-bg"></div>
+<div class="scanlines"></div>
+
+<!-- LOGIN -->
+<div class="modal-overlay" id="login-modal">
+  <div class="login-box">
+    <h2>DARK 5C</h2>
+    <p>// ACCES RESTREINT //</p>
+    <div id="view-admin" style="display:block">
+      <input class="lin" type="password" id="lp" placeholder="Mot de passe admin">
+      <div class="lerr" id="lerr"></div>
+      <button class="btn-login" onclick="doAdmin()">CONNEXION ADMIN</button>
+      <div class="sep">— ou —</div>
+      <input class="lin" type="text" id="lpseudo" placeholder="Entre ton pseudo (membre)" autocomplete="off">
+      <button class="btn-pseudo" onclick="doMembre()">ENTRER COMME MEMBRE</button>
+      <div class="sep">— ou —</div>
+      <button class="btn-pseudo" onclick="doVisiteur()">👁 Visiteur (sans compte)</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <img src="1775724285910_image.png" alt="Dark 5C" class="logo-img">
+    <h1>DARK 5C</h1>
+    <div class="tagline">// CLASSE 5C — ESPACE PRIVE //</div>
+  </header>
+
+  <div class="topbar">
+    <div class="ub">
+      <div class="avatar" id="top-av">?</div>
+      <div>
+        <div class="uname" id="top-name">---</div>
+        <div class="ugrade" id="top-grade">---</div>
+      </div>
+    </div>
+    <div class="tbr">
+      <div id="ttime">--:--:--</div>
+      <div style="font-size:10px;margin-top:2px" id="tdate">---</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="sv" id="st-t">0</div><div class="sl">FICHIERS</div></div>
+    <div class="stat"><div class="sv" id="st-a">0</div><div class="sl">ANNONCES</div></div>
+    <div class="stat"><div class="sv" id="st-z">0</div><div class="sl">ZONES TEXTE</div></div>
+    <div class="stat"><div class="sv" id="st-s">0</div><div class="sl">SECTIONS</div></div>
+  </div>
+
+  <!-- ANNONCES -->
+  <div class="card">
+    <div class="stitle">
+      <span class="stitle-txt">ANNONCES</span>
+      <button class="bs adm" onclick="toggleAnnForm()">+ POSTER</button>
+    </div>
+    <div class="adm-block" id="ann-form-wrap">
+      <div id="ann-form" style="display:none;margin-bottom:14px">
+        <textarea class="big-in" id="ann-input" placeholder="Écris ton annonce pour toute la classe..."></textarea>
+        <button class="btn-gold" onclick="postAnn()">PUBLIER POUR TOUS</button>
+      </div>
+    </div>
+    <div id="ann-list"><div class="loading"><span class="blink">[ CHARGEMENT... ]</span></div></div>
+  </div>
+
+  <!-- ZONES DE TEXTE -->
+  <div class="card">
+    <div class="stitle">
+      <span class="stitle-txt">ZONES DE TEXTE</span>
+      <button class="bs adm" onclick="addTZ()">+ AJOUTER</button>
+    </div>
+    <div class="tgrid" id="tz-grid"><div class="loading"><span class="blink">[ CHARGEMENT... ]</span></div></div>
+  </div>
+
+  <!-- SECTIONS FICHIERS -->
+  <div class="card">
+    <div class="stitle">
+      <span class="stitle-txt">FICHIERS & LIENS</span>
+      <button class="bs adm" onclick="addFS()">+ AJOUTER SECTION</button>
+    </div>
+    <div class="fgrid" id="fs-grid"><div class="loading"><span class="blink">[ CHARGEMENT... ]</span></div></div>
+  </div>
+
+  <footer>DARK 5C &nbsp;|&nbsp; 5C ONLY &nbsp;|&nbsp; TOUS DROITS RESERVES</footer>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, updateDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDoUpkg50ZfO7ljgn7niMkSYtd8Vr95NQ8",
+  authDomain: "dark-5c-2d71d.firebaseapp.com",
+  projectId: "dark-5c-2d71d",
+  storageBucket: "dark-5c-2d71d.firebasestorage.app",
+  messagingSenderId: "925757870883",
+  appId: "1:925757870883:web:e5cd18e8604086b35d3296"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ============ AUTH ============
+const ADMIN_PASS = 'dark5c';
+let isAdmin = false;
+let currentUser = '';
+let currentRole = '';
+
+window.doAdmin = function() {
+  const p = document.getElementById('lp').value;
+  if(p === ADMIN_PASS) {
+    isAdmin = true; currentUser = 'Dark5C'; currentRole = 'admin';
+    document.body.classList.add('is-admin');
+    enter('👑', 'Dark5C', '<span class="grade-admin">★ ADMIN ★</span>');
+  } else {
+    document.getElementById('lerr').textContent = '[ MOT DE PASSE INCORRECT ]';
+  }
+}
+window.doMembre = function() {
+  const p = document.getElementById('lpseudo').value.trim();
+  if(p.length < 2) { document.getElementById('lerr').textContent = '[ PSEUDO TROP COURT ]'; return; }
+  currentUser = p; currentRole = 'membre';
+  enter('👤', p, '<span class="grade-membre">◆ MEMBRE ◆</span>');
+}
+window.doVisiteur = function() {
+  currentUser = 'Visiteur'; currentRole = 'visiteur';
+  enter('👁', 'Visiteur', '<span class="grade-visit">VISITEUR</span>');
+}
+
+function enter(av, name, grade) {
+  document.getElementById('login-modal').classList.add('hidden');
+  document.getElementById('top-av').textContent = av;
+  document.getElementById('top-name').textContent = name;
+  document.getElementById('top-grade').innerHTML = grade;
+  loadAll();
+}
+
+document.getElementById('lp').addEventListener('keydown', e => { if(e.key==='Enter') window.doAdmin(); });
+
+// ============ CLOCK ============
+function tick() {
+  const n = new Date(), p = x => String(x).padStart(2,'0');
+  document.getElementById('ttime').textContent = p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+  const j=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const mo=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  document.getElementById('tdate').textContent = j[n.getDay()]+' '+n.getDate()+' '+mo[n.getMonth()]+' '+n.getFullYear();
+}
+setInterval(tick, 1000); tick();
+
+// ============ LOAD ALL ============
+async function loadAll() {
+  listenAnnonces();
+  listenTextZones();
+  listenFileSections();
+}
+
+// ============ ANNONCES ============
+window.toggleAnnForm = function() {
+  const f = document.getElementById('ann-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+window.postAnn = async function() {
+  const txt = document.getElementById('ann-input').value.trim();
+  if(!txt) return;
+  const n = new Date();
+  await addDoc(collection(db,'annonces'), {
+    text: txt,
+    author: 'Dark5C',
+    date: n.toLocaleDateString('fr-FR')+' '+n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+    ts: Date.now()
+  });
+  document.getElementById('ann-input').value = '';
+  document.getElementById('ann-form').style.display = 'none';
+}
+
+window.delAnn = async function(id) {
+  await deleteDoc(doc(db,'annonces',id));
+}
+
+function listenAnnonces() {
+  const q = query(collection(db,'annonces'), orderBy('ts','desc'));
+  onSnapshot(q, snap => {
+    const list = document.getElementById('ann-list');
+    if(snap.empty) { list.innerHTML = '<div class="loading">[ AUCUNE ANNONCE ]</div>'; updateStats(); return; }
+    list.innerHTML = '';
+    snap.forEach(d => {
+      const data = d.data();
+      const div = document.createElement('div'); div.className='annonce';
+      div.innerHTML = `
+        <div class="ann-author">👑 ADMIN — ${data.author}</div>
+        <div class="ann-text">${data.text}</div>
+        <div class="ann-date">${data.date}</div>
+        <button class="ann-del" onclick="delAnn('${d.id}')">✕</button>
+      `;
+      list.appendChild(div);
+    });
+    updateStats();
+  });
+}
+
+// ============ TEXT ZONES ============
+window.addTZ = async function() {
+  await addDoc(collection(db,'textzones'), {
+    title: 'Nouvelle zone',
+    content: '',
+    ts: Date.now()
+  });
+}
+
+window.saveTZ = async function(id, titleEl, contentEl) {
+  const title = document.getElementById(titleEl).value || 'Zone';
+  const content = document.getElementById(contentEl).value;
+  await updateDoc(doc(db,'textzones',id), { title, content });
+  document.getElementById('tzedit-'+id).classList.remove('open');
+}
+
+window.delTZ = async function(id) {
+  await deleteDoc(doc(db,'textzones',id));
+}
+
+window.openTZEdit = function(id) {
+  document.getElementById('tzedit-'+id).classList.toggle('open');
+}
+
+function listenTextZones() {
+  const q = query(collection(db,'textzones'), orderBy('ts','asc'));
+  onSnapshot(q, snap => {
+    const g = document.getElementById('tz-grid');
+    if(snap.empty) { g.innerHTML = '<div class="loading">[ AUCUNE ZONE — ADMIN: CLIQUE + AJOUTER ]</div>'; updateStats(); return; }
+    g.innerHTML = '';
+    snap.forEach(d => {
+      const data = d.data();
+      const div = document.createElement('div'); div.className='tz';
+      div.innerHTML = `
+        <div class="tz-hd">
+          <div class="tz-lbl">${data.title}</div>
+          <div style="display:flex;gap:5px">
+            ${isAdmin ? `<button class="bs" onclick="openTZEdit('${d.id}')">EDITER</button><button class="bs del" onclick="delTZ('${d.id}')">SUPPR</button>` : ''}
+          </div>
+        </div>
+        <div class="tz-body ${data.content?'':'empty'}">${data.content||'[ vide ]'}</div>
+        <div class="tz-form" id="tzedit-${d.id}">
+          <input class="sm-in" id="tztit-${d.id}" value="${data.title}" placeholder="Titre">
+          <textarea class="big-in" id="tzcnt-${d.id}" style="min-height:70px">${data.content||''}</textarea>
+          <button class="bs save" onclick="saveTZ('${d.id}','tztit-${d.id}','tzcnt-${d.id}')">SAUVEGARDER</button>
+        </div>
+      `;
+      g.appendChild(div);
+    });
+    updateStats();
+  });
+}
+
+// ============ FILE SECTIONS ============
+window.addFS = async function() {
+  await addDoc(collection(db,'filesections'), {
+    title: 'Nouvelle section',
+    ts: Date.now()
+  });
+}
+
+window.renFS = async function(id, cur) {
+  const n = prompt('Nouveau nom :', cur);
+  if(n && n.trim()) await updateDoc(doc(db,'filesections',id), { title: n.trim() });
+}
+
+window.delFS = async function(id) {
+  // delete all files in section
+  const files = await getDocs(collection(db,'filesections',id,'files'));
+  for(const f of files.docs) await deleteDoc(doc(db,'filesections',id,'files',f.id));
+  await deleteDoc(doc(db,'filesections',id));
+}
+
+window.addLink = async function(sid) {
+  const nameEl = document.getElementById('lname-'+sid);
+  const urlEl = document.getElementById('lurl-'+sid);
+  const name = nameEl.value.trim();
+  const url = urlEl.value.trim();
+  if(!name || !url) return;
+  await addDoc(collection(db,'filesections',sid,'files'), {
+    name, url, type: 'link', ts: Date.now()
+  });
+  nameEl.value = ''; urlEl.value = '';
+  document.getElementById('lform-'+sid).classList.remove('open');
+}
+
+window.delFile = async function(sid, fid) {
+  await deleteDoc(doc(db,'filesections',sid,'files',fid));
+}
+
+window.toggleLForm = function(sid) {
+  document.getElementById('lform-'+sid).classList.toggle('open');
+}
+
+function fileIcon(name, type) {
+  if(type==='link') return '🔗';
+  const ext = name.split('.').pop().toLowerCase();
+  if(['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️';
+  if(['mp4','avi','mov','mkv'].includes(ext)) return '🎬';
+  if(['mp3','wav','ogg'].includes(ext)) return '🎵';
+  if(ext==='pdf') return '📄';
+  if(['doc','docx'].includes(ext)) return '📝';
+  if(['zip','rar','7z'].includes(ext)) return '🗜️';
+  return '📁';
+}
+
+function listenFileSections() {
+  const q = query(collection(db,'filesections'), orderBy('ts','asc'));
+  onSnapshot(q, snap => {
+    const g = document.getElementById('fs-grid');
+    if(snap.empty) { g.innerHTML = '<div class="loading">[ AUCUNE SECTION — ADMIN: CLIQUE + AJOUTER SECTION ]</div>'; updateStats(); return; }
+    g.innerHTML = '';
+    snap.forEach(d => {
+      const data = d.data();
+      const div = document.createElement('div'); div.className='fc';
+      div.innerHTML = `
+        <div class="fc-hd">
+          <span>📂</span>
+          <span id="fstit-${d.id}">${data.title}</span>
+          <div style="margin-left:auto;display:flex;gap:5px">
+            ${isAdmin ? `<button class="bs" onclick="renFS('${d.id}','${data.title}')">✏</button><button class="bs del" onclick="delFS('${d.id}')">✕</button>` : ''}
+          </div>
+        </div>
+        ${isAdmin ? `
+        <button class="bs" style="width:100%;margin-bottom:8px" onclick="toggleLForm('${d.id}')">+ AJOUTER UN LIEN / FICHIER</button>
+        <div class="link-form" id="lform-${d.id}">
+          <input class="sm-in" id="lname-${d.id}" placeholder="Nom du fichier (ex: Cours maths)">
+          <input class="link-input" id="lurl-${d.id}" placeholder="Lien (Google Drive, Imgur...)">
+          <button class="bs save" onclick="addLink('${d.id}')">AJOUTER</button>
+        </div>
+        ` : ''}
+        <div class="flist" id="flist-${d.id}"><div class="no-files">[ aucun fichier ]</div></div>
+      `;
+      g.appendChild(div);
+      listenFiles(d.id);
+    });
+    updateStats();
+  });
+}
+
+function listenFiles(sid) {
+  const q = query(collection(db,'filesections',sid,'files'), orderBy('ts','asc'));
+  onSnapshot(q, snap => {
+    const list = document.getElementById('flist-'+sid);
+    if(!list) return;
+    if(snap.empty) { list.innerHTML = '<div class="no-files">[ aucun fichier ]</div>'; updateStats(); return; }
+    list.innerHTML = '';
+    snap.forEach(f => {
+      const data = f.data();
+      const div = document.createElement('div'); div.className='fitem';
+      div.innerHTML = `
+        <div class="fitem-icon">${fileIcon(data.name, data.type)}</div>
+        <div class="fitem-info">
+          <div class="fitem-name">${data.name}</div>
+          <div class="fitem-meta">${data.type==='link'?'Lien externe':data.type}</div>
+        </div>
+        <a href="${data.url}" target="_blank" class="fitem-dl">⬇ OUVRIR</a>
+        <button class="fitem-del" onclick="delFile('${sid}','${f.id}')">✕</button>
+      `;
+      list.appendChild(div);
+    });
+    updateStats();
+  });
+}
+
+// ============ STATS ============
+async function updateStats() {
+  try {
+    const anns = await getDocs(collection(db,'annonces'));
+    const tzs = await getDocs(collection(db,'textzones'));
+    const fss = await getDocs(collection(db,'filesections'));
+    let totalFiles = 0;
+    for(const fs of fss.docs) {
+      const files = await getDocs(collection(db,'filesections',fs.id,'files'));
+      totalFiles += files.size;
+    }
+    document.getElementById('st-t').textContent = totalFiles;
+    document.getElementById('st-a').textContent = anns.size;
+    document.getElementById('st-z').textContent = tzs.size;
+    document.getElementById('st-s').textContent = fss.size;
+  } catch(e) {}
+}
+
+</script>
+</body>
+</html>
